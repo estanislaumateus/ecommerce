@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuilNes Store - Dashboard Administrativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dbeafe; color: #1e40af; }
+        .status-shipped { background-color: #d1fae5; color: #065f46; }
+        .status-delivered { background-color: #dcfce7; color: #166534; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+        }
+        
+        .table-row:hover {
+            background-color: #f8fafc;
+        }
+        
+        .notification {
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg sidebar-transition z-30">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <div class="text-xl font-bold text-primary">
+                <i class="fas fa-shopping-bag mr-2"></i>
+                GuilNes Admin
+            </div>
+        </div>
+        
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="dashboard">
+                    <i class="fas fa-chart-pie mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="products">
+                    <i class="fas fa-box mr-3"></i>
+                    Produtos
+                </a>
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="orders">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    Pedidos
+                </a>
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="customers">
+                    <i class="fas fa-users mr-3"></i>
+                    Clientes
+                </a>
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="analytics">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Relatórios
+                </a>
+                <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-200" data-section="settings">
+                    <i class="fas fa-cog mr-3"></i>
+                    Configurações
+                </a>
+            </div>
+        </nav>
+        
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <div class="flex items-center">
+                <img src="/placeholder.svg?height=40&width=40" alt="Admin" class="w-10 h-10 rounded-full mr-3">
+                <div>
+                    <div class="text-sm font-semibold">Admin User</div>
+                    <div class="text-xs text-gray-500">admin@guilnes.com</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h1 id="page-title" class="text-2xl font-semibold text-gray-800 ml-4">Dashboard</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    
+                    <button class="relative text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                    </button>
+                    
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <img src="/placeholder.svg?height=32&width=32" alt="Profile" class="w-8 h-8 rounded-full mr-2">
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Vendas Hoje</p>
+                                <p class="text-2xl font-bold text-gray-800">R$ 12.450</p>
+                                <p class="text-sm text-green-600">+12% vs ontem</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-dollar-sign text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Pedidos</p>
+                                <p class="text-2xl font-bold text-gray-800">156</p>
+                                <p class="text-sm text-blue-600">+8% vs ontem</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-shopping-cart text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Produtos</p>
+                                <p class="text-2xl font-bold text-gray-800">1.234</p>
+                                <p class="text-sm text-purple-600">+5 novos</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-box text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Clientes</p>
+                                <p class="text-2xl font-bold text-gray-800">2.567</p>
+                                <p class="text-sm text-orange-600">+23 novos</p>
+                            </div>
+                            <div class="bg-orange-100 p-3 rounded-full">
+                                <i class="fas fa-users text-orange-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Vendas dos Últimos 7 Dias</h3>
+                        <canvas id="salesChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Produtos Mais Vendidos</h3>
+                        <canvas id="productsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Pedidos Recentes</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pedido</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="table-row">
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#12345</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">João Silva</td>
+                                    <td class="px-6 py-4"><span class="status-badge status-processing">Processando</span></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">R$ 2.499,00</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Hoje, 14:30</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#12344</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Maria Santos</td>
+                                    <td class="px-6 py-4"><span class="status-badge status-shipped">Enviado</span></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">R$ 1.299,00</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Hoje, 12:15</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#12343</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Pedro Costa</td>
+                                    <td class="px-6 py-4"><span class="status-badge status-delivered">Entregue</span></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">R$ 899,00</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Ontem, 16:45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products-section" class="section-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Gerenciar Produtos</h2>
+                    <button id="add-product-btn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>Adicionar Produto
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                            <select id="product-category-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                                <option value="">Todas as categorias</option>
+                                <option value="smartphones">Smartphones</option>
+                                <option value="laptops">Laptops</option>
+                                <option value="tablets">Tablets</option>
+                                <option value="acessorios">Acessórios</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="product-status-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                                <option value="">Todos os status</option>
+                                <option value="active">Ativo</option>
+                                <option value="inactive">Inativo</option>
+                                <option value="out-of-stock">Sem estoque</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                            <input type="text" id="product-search" placeholder="Nome do produto..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="clear-product-filters" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoria</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estoque</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body" class="divide-y divide-gray-200">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="section-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Gerenciar Pedidos</h2>
+                    <div class="flex space-x-2">
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                            <i class="fas fa-download mr-2"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Filters -->
+                <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="order-status-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                                <option value="">Todos os status</option>
+                                <option value="pending">Pendente</option>
+                                <option value="processing">Processando</option>
+                                <option value="shipped">Enviado</option>
+                                <option value="delivered">Entregue</option>
+                                <option value="cancelled">Cancelado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                            <input type="date" id="order-date-from" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                            <input type="date" id="order-date-to" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                            <input type="text" id="order-search" placeholder="Número do pedido ou cliente..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="clear-order-filters" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pedido</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produtos</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-gray-200">
+                                <!-- Orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Section -->
+            <div id="customers-section" class="section-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Gerenciar Clientes</h2>
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>Adicionar Cliente
+                    </button>
+                </div>
+
+                <!-- Customer Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Total de Clientes</p>
+                                <p class="text-2xl font-bold text-gray-800">2.567</p>
+                            </div>
+                            <i class="fas fa-users text-3xl text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Novos este mês</p>
+                                <p class="text-2xl font-bold text-gray-800">156</p>
+                            </div>
+                            <i class="fas fa-user-plus text-3xl text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Clientes Ativos</p>
+                                <p class="text-2xl font-bold text-gray-800">1.892</p>
+                            </div>
+                            <i class="fas fa-user-check text-3xl text-purple-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers Table -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">Lista de Clientes</h3>
+                            <input type="text" placeholder="Buscar clientes..." class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pedidos</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Gasto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cadastro</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="table-row">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <img src="/placeholder.svg?height=40&width=40" alt="Cliente" class="w-10 h-10 rounded-full mr-3">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">João Silva</div>
+                                                <div class="text-sm text-gray-500">São Paulo, SP</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">joao@email.com</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">12</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">R$ 8.450,00</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">15/01/2024</td>
+                                    <td class="px-6 py-4 text-sm">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- More customer rows... -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics-section" class="section-content hidden">
+                <h2 class="text-2xl font-semibold mb-6">Relatórios e Analytics</h2>
+                
+                <!-- Analytics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Receita Mensal</h3>
+                        <p class="text-3xl font-bold text-green-600">R$ 245.890</p>
+                        <p class="text-sm text-gray-500">+15% vs mês anterior</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Conversão</h3>
+                        <p class="text-3xl font-bold text-blue-600">3.2%</p>
+                        <p class="text-sm text-gray-500">+0.5% vs mês anterior</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Ticket Médio</h3>
+                        <p class="text-3xl font-bold text-purple-600">R$ 1.245</p>
+                        <p class="text-sm text-gray-500">+8% vs mês anterior</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Produtos Vendidos</h3>
+                        <p class="text-3xl font-bold text-orange-600">1.567</p>
+                        <p class="text-sm text-gray-500">+12% vs mês anterior</p>
+                    </div>
+                </div>
+
+                <!-- Detailed Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Vendas por Categoria</h3>
+                        <canvas id="categoryChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Crescimento Mensal</h3>
+                        <canvas id="growthChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content hidden">
+                <h2 class="text-2xl font-semibold mb-6">Configurações</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Store Settings -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Configurações da Loja</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Loja</label>
+                                <input type="text" value="GuilNes Store" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email de Contato</label>
+                                <input type="email" value="contato@guilnesstore.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" value="(11) 9999-9999" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            </div>
+                            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-200">
+                                Salvar Alterações
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Payment Settings -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Configurações de Pagamento</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span>PIX</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Cartão de Crédito</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Boleto Bancário</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="modal-title" class="text-2xl font-bold">Adicionar Produto</h2>
+                    <button id="close-product-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="product-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
+                            <input type="text" id="product-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                            <select id="product-category" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                                <option value="">Selecione uma categoria</option>
+                                <option value="smartphones">Smartphones</option>
+                                <option value="laptops">Laptops</option>
+                                <option value="tablets">Tablets</option>
+                                <option value="acessorios">Acessórios</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preço (R$)</label>
+                            <input type="number" id="product-price" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estoque</label>
+                            <input type="number" id="product-stock" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="product-status" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                                <option value="active">Ativo</option>
+                                <option value="inactive">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <textarea id="product-description" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">URL da Imagem</label>
+                        <input type="url" id="product-image" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="cancel-product" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-200">
+                            <span id="submit-text">Adicionar Produto</span>
+                            <div id="submit-loading" class="loading-spinner hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Detalhes do Pedido</h2>
+                    <button id="close-order-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="order-details-content">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg notification hidden z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="notification-text">Operação realizada com sucesso!</span>
+        </div>
+    </div>
+
+    <script>
+        // Admin Dashboard Class
+        class AdminDashboard {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.products = this.loadProducts();
+                this.orders = this.loadOrders();
+                this.charts = {};
+                
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadSection('dashboard');
+                this.initCharts();
+                this.loadProductsTable();
+                this.loadOrdersTable();
+            }
+
+            bindEvents() {
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = item.dataset.section;
+                        this.loadSection(section);
+                    });
+                });
+
+                // Product modal events
+                document.getElementById('add-product-btn').addEventListener('click', () => this.openProductModal());
+                document.getElementById('close-product-modal').addEventListener('click', () => this.closeProductModal());
+                document.getElementById('cancel-product').addEventListener('click', () => this.closeProductModal());
+                document.getElementById('product-form').addEventListener('submit', (e) => this.handleProductSubmit(e));
+
+                // Order modal events
+                document.getElementById('close-order-modal').addEventListener('click', () => this.closeOrderModal());
+
+                // Filter events
+                document.getElementById('clear-product-filters').addEventListener('click', () => this.clearProductFilters());
+                document.getElementById('clear-order-filters').addEventListener('click', () => this.clearOrderFilters());
+
+                // Search events
+                document.getElementById('product-search').addEventListener('input', () => this.filterProducts());
+                document.getElementById('order-search').addEventListener('input', () => this.filterOrders());
+            }
+
+            loadSection(section) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('bg-primary', 'text-white');
+                    item.classList.add('text-gray-700');
+                });
+                
+                document.querySelector(`[data-section="${section}"]`).classList.add('bg-primary', 'text-white');
+                document.querySelector(`[data-section="${section}"]`).classList.remove('text-gray-700');
+
+                // Hide all sections
+                document.querySelectorAll('.section-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // Show selected section
+                document.getElementById(`${section}-section`).classList.remove('hidden');
+                document.getElementById(`${section}-section`).classList.add('fade-in');
+
+                // Update page title
+                const titles = {
+                    dashboard: 'Dashboard',
+                    products: 'Produtos',
+                    orders: 'Pedidos',
+                    customers: 'Clientes',
+                    analytics: 'Relatórios',
+                    settings: 'Configurações'
+                };
+                
+                document.getElementById('page-title').textContent = titles[section];
+                this.currentSection = section;
+
+                // Load section-specific data
+                if (section === 'analytics') {
+                    setTimeout(() => this.initAnalyticsCharts(), 100);
+                }
+            }
+
+            loadProducts() {
+                // Sample products data
+                return [
+                    {
+                        id: 1,
+                        name: "iPhone 15 Pro Max",
+                        category: "smartphones",
+                        price: 8999,
+                        stock: 25,
+                        status: "active",
+                        image: "/placeholder.svg?height=50&width=50",
+                        description: "O mais avançado iPhone já criado"
+                    },
+                    {
+                        id: 2,
+                        name: "Samsung Galaxy S24 Ultra",
+                        category: "smartphones",
+                        price: 7499,
+                        stock: 18,
+                        status: "active",
+                        image: "/placeholder.svg?height=50&width=50",
+                        description: "Galaxy S24 Ultra com S Pen integrada"
+                    },
+                    {
+                        id: 3,
+                        name: "MacBook Pro M3",
+                        category: "laptops",
+                        price: 12999,
+                        stock: 8,
+                        status: "active",
+                        image: "/placeholder.svg?height=50&width=50",
+                        description: "MacBook Pro com chip M3"
+                    },
+                    {
+                        id: 4,
+                        name: "AirPods Pro 2ª Geração",
+                        category: "acessorios",
+                        price: 1899,
+                        stock: 0,
+                        status: "out-of-stock",
+                        image: "/placeholder.svg?height=50&width=50",
+                        description: "AirPods Pro com cancelamento ativo de ruído"
+                    }
+                ];
+            }
+
+            loadOrders() {
+                // Sample orders data
+                return [
+                    {
+                        id: 12345,
+                        customer: "João Silva",
+                        email: "joao@email.com",
+                        products: ["iPhone 15 Pro Max", "AirPods Pro"],
+                        total: 10898,
+                        status: "processing",
+                        date: "2024-01-15T14:30:00",
+                        address: "Rua das Flores, 123 - São Paulo, SP"
+                    },
+                    {
+                        id: 12344,
+                        customer: "Maria Santos",
+                        email: "maria@email.com",
+                        products: ["Samsung Galaxy S24"],
+                        total: 7499,
+                        status: "shipped",
+                        date: "2024-01-15T12:15:00",
+                        address: "Av. Paulista, 456 - São Paulo, SP"
+                    },
+                    {
+                        id: 12343,
+                        customer: "Pedro Costa",
+                        email: "pedro@email.com",
+                        products: ["MacBook Pro M3"],
+                        total: 12999,
+                        status: "delivered",
+                        date: "2024-01-14T16:45:00",
+                        address: "Rua Augusta, 789 - São Paulo, SP"
+                    }
+                ];
+            }
+
+            loadProductsTable() {
+                const tbody = document.getElementById('products-table-body');
+                tbody.innerHTML = this.products.map(product => `
+                    <tr class="table-row">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <img src="${product.image}" alt="${product.name}" class="w-12 h-12 rounded-lg mr-3">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${product.name}</div>
+                                    <div class="text-sm text-gray-500">ID: ${product.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500 capitalize">${product.category}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">R$ ${product.price.toLocaleString('pt-BR')}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${product.stock}</td>
+                        <td class="px-6 py-4">
+                            <span class="status-badge ${this.getStatusClass(product.status)}">${this.getStatusText(product.status)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="dashboard.editProduct(${product.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="dashboard.deleteProduct(${product.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadOrdersTable() {
+                const tbody = document.getElementById('orders-table-body');
+                tbody.innerHTML = this.orders.map(order => `
+                    <tr class="table-row">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">#${order.id}</td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${order.customer}</div>
+                                <div class="text-sm text-gray-500">${order.email}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${order.products.length} item(s)</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">R$ ${order.total.toLocaleString('pt-BR')}</td>
+                        <td class="px-6 py-4">
+                            <span class="status-badge status-${order.status}">${this.getOrderStatusText(order.status)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${this.formatDate(order.date)}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="dashboard.viewOrder(${order.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-800 mr-3" onclick="dashboard.updateOrderStatus(${order.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            getStatusClass(status) {
+                const classes = {
+                    'active': 'status-delivered',
+                    'inactive': 'status-cancelled',
+                    'out-of-stock': 'status-pending'
+                };
+                return classes[status] || 'status-pending';
+            }
+
+            getStatusText(status) {
+                const texts = {
+                    'active': 'Ativo',
+                    'inactive': 'Inativo',
+                    'out-of-stock': 'Sem Estoque'
+                };
+                return texts[status] || status;
+            }
+
+            getOrderStatusText(status) {
+                const texts = {
+                    'pending': 'Pendente',
+                    'processing': 'Processando',
+                    'shipped': 'Enviado',
+                    'delivered': 'Entregue',
+                    'cancelled': 'Cancelado'
+                };
+                return texts[status] || status;
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            openProductModal(productId = null) {
+                const modal = document.getElementById('product-modal');
+                const title = document.getElementById('modal-title');
+                const submitText = document.getElementById('submit-text');
+                
+                if (productId) {
+                    const product = this.products.find(p => p.id === productId);
+                    title.textContent = 'Editar Produto';
+                    submitText.textContent = 'Salvar Alterações';
+                    this.fillProductForm(product);
+                } else {
+                    title.textContent = 'Adicionar Produto';
+                    submitText.textContent = 'Adicionar Produto';
+                    document.getElementById('product-form').reset();
+                }
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            closeProductModal() {
+                document.getElementById('product-modal').classList.add('hidden');
+                document.getElementById('product-modal').classList.remove('flex');
+            }
+
+            fillProductForm(product) {
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-category').value = product.category;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-stock').value = product.stock;
+                document.getElementById('product-status').value = product.status;
+                document.getElementById('product-description').value = product.description;
+                document.getElementById('product-image').value = product.image;
+            }
+
+            handleProductSubmit(e) {
+                e.preventDefault();
+                
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const submitText = document.getElementById('submit-text');
+                const submitLoading = document.getElementById('submit-loading');
+                
+                // Show loading
+                submitText.classList.add('hidden');
+                submitLoading.classList.remove('hidden');
+                submitBtn.disabled = true;
+                
+                // Simulate API call
+                setTimeout(() => {
+                    const formData = new FormData(e.target);
+                    const productData = {
+                        id: Date.now(),
+                        name: document.getElementById('product-name').value,
+                        category: document.getElementById('product-category').value,
+                        price: parseFloat(document.getElementById('product-price').value),
+                        stock: parseInt(document.getElementById('product-stock').value),
+                        status: document.getElementById('product-status').value,
+                        description: document.getElementById('product-description').value,
+                        image: document.getElementById('product-image').value || '/placeholder.svg?height=50&width=50'
+                    };
+                    
+                    this.products.push(productData);
+                    this.loadProductsTable();
+                    this.closeProductModal();
+                    this.showNotification('Produto adicionado com sucesso!');
+                    
+                    // Reset loading
+                    submitText.classList.remove('hidden');
+                    submitLoading.classList.add('hidden');
+                    submitBtn.disabled = false;
+                }, 1000);
+            }
+
+            editProduct(productId) {
+                this.openProductModal(productId);
+            }
+
+            deleteProduct(productId) {
+                if (confirm('Tem certeza que deseja excluir este produto?')) {
+                    this.products = this.products.filter(p => p.id !== productId);
+                    this.loadProductsTable();
+                    this.showNotification('Produto excluído com sucesso!');
+                }
+            }
+
+            viewOrder(orderId) {
+                const order = this.orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                const content = document.getElementById('order-details-content');
+                content.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Informações do Pedido</h3>
+                            <div class="space-y-3">
+                                <div><strong>Número:</strong> #${order.id}</div>
+                                <div><strong>Data:</strong> ${this.formatDate(order.date)}</div>
+                                <div><strong>Status:</strong> <span class="status-badge status-${order.status}">${this.getOrderStatusText(order.status)}</span></div>
+                                <div><strong>Total:</strong> R$ ${order.total.toLocaleString('pt-BR')}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Informações do Cliente</h3>
+                            <div class="space-y-3">
+                                <div><strong>Nome:</strong> ${order.customer}</div>
+                                <div><strong>Email:</strong> ${order.email}</div>
+                                <div><strong>Endereço:</strong> ${order.address}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-4">Produtos</h3>
+                        <div class="space-y-2">
+                            ${order.products.map(product => `
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                    <span>${product}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-4">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                            Atualizar Status
+                        </button>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                            Imprimir
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('order-modal').classList.remove('hidden');
+                document.getElementById('order-modal').classList.add('flex');
+            }
+
+            closeOrderModal() {
+                document.getElementById('order-modal').classList.add('hidden');
+                document.getElementById('order-modal').classList.remove('flex');
+            }
+
+            filterProducts() {
+                // Implementation for product filtering
+                this.loadProductsTable();
+            }
+
+            filterOrders() {
+                // Implementation for order filtering
+                this.loadOrdersTable();
+            }
+
+            clearProductFilters() {
+                document.getElementById('product-category-filter').value = '';
+                document.getElementById('product-status-filter').value = '';
+                document.getElementById('product-search').value = '';
+                this.filterProducts();
+            }
+
+            clearOrderFilters() {
+                document.getElementById('order-status-filter').value = '';
+                document.getElementById('order-date-from').value = '';
+                document.getElementById('order-date-to').value = '';
+                document.getElementById('order-search').value = '';
+                this.filterOrders();
+            }
+
+            initCharts() {
+                // Sales Chart
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                this.charts.sales = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                        datasets: [{
+                            label: 'Vendas (R$)',
+                            data: [12000, 15000, 8000, 18000, 22000, 16000, 14000],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Products Chart
+                const productsCtx = document.getElementById('productsChart').getContext('2d');
+                this.charts.products = new Chart(productsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Smartphones', 'Laptops', 'Tablets', 'Acessórios'],
+                        datasets: [{
+                            data: [45, 25, 15, 15],
+                            backgroundColor: [
+                                '#2563eb',
+                                '#10b981',
+                                '#f59e0b',
+                                '#ef4444'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            initAnalyticsCharts() {
+                // Category Chart
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                this.charts.category = new Chart(categoryCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Smartphones', 'Laptops', 'Tablets', 'Acessórios', 'Gaming', 'Smart Home'],
+                        datasets: [{
+                            label: 'Vendas (R$)',
+                            data: [85000, 65000, 35000, 25000, 45000, 15000],
+                            backgroundColor: '#2563eb'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Growth Chart
+                const growthCtx = document.getElementById('growthChart').getContext('2d');
+                this.charts.growth = new Chart(growthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                        datasets: [{
+                            label: 'Receita Mensal',
+                            data: [180000, 195000, 210000, 225000, 240000, 235000, 250000, 265000, 280000, 275000, 290000, 305000],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notification-text');
+                
+                notificationText.textContent = message;
+                
+                // Set color based on type
+                notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg notification z-50 ${
+                    type === 'success' ? 'bg-green-500' : 
+                    type === 'error' ? 'bg-red-500' : 
+                    'bg-blue-500'
+                } text-white`;
+                
+                notification.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // Initialize dashboard
+        let dashboard;
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new AdminDashboard();
+        });
+    </script>
+</body>
+</html>

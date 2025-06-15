@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuilNes Store - Tecnologia e Inovação</title>
+    <meta name="description" content="GuilNes Store - A melhor loja de tecnologia online. Smartphones, laptops, acessórios e muito mais com os melhores preços.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styleIdex.css">
+
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <!-- Top Bar -->
+            <div class="border-b border-gray-200 py-2">
+                <div class="flex justify-between items-center text-sm">
+                    <div class="text-gray-600">
+                        <i class="fas fa-truck mr-1"></i>
+                        Frete grátis para compras acima de 5.000,00kz
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Header -->
+            <div class="py-4">
+                <div class="flex items-center justify-between">
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <div class="text-2xl font-bold text-primary mr-8">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            GuilNes Store
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-xl mx-8">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="search-input"
+                                placeholder="Buscar produtos..." 
+                                class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:border-primary transition duration-300"
+                            >
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <button id="search-btn" class="absolute right-2 top-1 bg-primary text-white px-4 py-1 rounded-md hover:bg-secondary transition duration-300">
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- User Actions -->
+                    <div class="flex items-center space-x-6">
+                        <a href="#" class="text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fas fa-user text-xl"></i>
+                            <span class="hidden md:inline ml-1">Conta</span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fas fa-heart text-xl"></i>
+                            <span class="hidden md:inline ml-1">Favoritos</span>
+                        </a>
+                        <button id="cart-btn" class="relative text-gray-600 hover:text-primary transition duration-300">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span class="hidden md:inline ml-1">Carrinho</span>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-badge hidden">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="border-t border-gray-200 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex space-x-8">
+                        <button id="categories-btn" class="flex items-center text-gray-700 hover:text-primary transition duration-300">
+                            <i class="fas fa-bars mr-2"></i>
+                            Categorias
+                        </button>
+                        <a href="#" class="text-gray-700 hover:text-primary transition duration-300">Ofertas</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition duration-300">Lançamentos</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition duration-300">Mais Vendidos</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition duration-300">Contato</a>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-phone mr-1"></i>
+                        (244) 993-459-699
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-4xl lg:text-6xl font-bold mb-6">
+                        Tecnologia que 
+                        <span class="text-yellow-300">Transforma</span>
+                    </h1>
+                    <p class="text-xl mb-8 text-gray-200">
+                        Descubra os melhores produtos de tecnologia com preços incríveis e entrega rápida.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button onclick="scrollToProducts()" class="bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition duration-300">
+                            Ver Produtos
+                        </button>
+                        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition duration-300">
+                            Ofertas Especiais
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="./images/school.jpg" alt="Produtos de Tecnologia" class="rounded-lg shadow-2xl">
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16 bg-gradient-to-r from-primary to-secondary">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-white mb-12">Categorias Populares</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="smartphones">
+                    <i class="fas fa-mobile-alt text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Smartphones</h3>
+                </div>
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="laptops">
+                    <i class="fas fa-laptop text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Laptops</h3>
+                </div>
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="tablets">
+                    <i class="fas fa-tablet-alt text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Tablets</h3>
+                </div>
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="acessorios">
+                    <i class="fas fa-headphones text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Acessórios</h3>
+                </div>
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="gaming">
+                    <i class="fas fa-gamepad text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Gaming</h3>
+                </div>
+                <div class="category-card p-6 rounded-lg text-center cursor-pointer" data-category="smart-home">
+                    <i class="fas fa-home text-4xl text-white mb-4"></i>
+                    <h3 class="text-white font-semibold">Smart Home</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products-section" class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Filters Sidebar -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white p-6 rounded-lg shadow-lg sticky top-24">
+                        <h3 class="text-xl font-bold mb-6">Filtros</h3>
+                        
+                        <!-- Category Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3">Categoria</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-2" value="all" checked>
+                                    <span>Todos os produtos</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-2" value="smartphones">
+                                    <span>Smartphones</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-2" value="laptops">
+                                    <span>Laptops</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-2" value="tablets">
+                                    <span>Tablets</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-2" value="acessorios">
+                                    <span>Acessórios</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Price Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3">Faixa de Preço</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Mínimo: kz <span id="min-price-display">0</span></label>
+                                    <input type="range" id="min-price" class="price-slider w-full" min="0" max="5000" value="0" step="100">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Máximo: kz <span id="max-price-display">5000</span></label>
+                                    <input type="range" id="max-price" class="price-slider w-full" min="0" max="5000" value="5000" step="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3">Marca</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="brand-filter mr-2" value="apple">
+                                    <span>Apple</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="brand-filter mr-2" value="samsung">
+                                    <span>Samsung</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="brand-filter mr-2" value="dell">
+                                    <span>Dell</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="brand-filter mr-2" value="hp">
+                                    <span>HP</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Rating Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3">Avaliação</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rating-filter mr-2" value="5">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rating-filter mr-2" value="4">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                        <span class="ml-1 text-gray-600">& acima</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="clear-filters" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition duration-300">
+                            Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Produtos</h2>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gray-600">Ordenar por:</span>
+                            <select id="sort-select" class="border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:border-primary">
+                                <option value="relevance">Relevância</option>
+                                <option value="price-low">Menor Preço</option>
+                                <option value="price-high">Maior Preço</option>
+                                <option value="rating">Melhor Avaliação</option>
+                                <option value="newest">Mais Recentes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading" class="hidden flex justify-center items-center py-12">
+                        <div class="loading-spinner"></div>
+                        <span class="ml-3 text-gray-600">Carregando produtos...</span>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Products will be loaded here -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="pagination" class="flex justify-center mt-12">
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-2 bg-primary text-white rounded-lg">1</button>
+                            <button class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300">2</button>
+                            <button class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300">3</button>
+                            <button class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="bg-gray-800 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Fique por dentro das novidades</h2>
+            <p class="text-gray-300 mb-8 max-w-2xl mx-auto">
+                Receba ofertas exclusivas, lançamentos e dicas de tecnologia diretamente no seu e-mail.
+            </p>
+            <div class="max-w-md mx-auto flex">
+                <input 
+                    type="email" 
+                    placeholder="Seu melhor e-mail" 
+                    class="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none"
+                >
+                <button class="bg-primary px-6 py-3 rounded-r-lg hover:bg-secondary transition duration-300">
+                    Inscrever
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="text-2xl font-bold mb-4">
+                        <i class="fas fa-shopping-bag mr-2"></i>
+                        GuilNes Store
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        Sua loja de tecnologia online com os melhores produtos e preços do mercado.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition duration-300">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition duration-300">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition duration-300">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Atendimento</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition duration-300">Central de Ajuda</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Fale Conosco</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Trocas e Devoluções</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Garantia</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Institucional</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition duration-300">Sobre Nós</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Trabalhe Conosco</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Política de Privacidade</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Termos de Uso</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contato</h3>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            <span>(244) 922-600-744</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <span>contato@guilnesstore.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>São Paulo, Luanda, Angola</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 GuilNes Store. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-96 bg-white shadow-xl transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h2 class="text-xl font-bold">Carrinho de Compras</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6">
+                <div id="empty-cart" class="text-center py-12">
+                    <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Seu carrinho está vazio</p>
+                </div>
+            </div>
+            
+            <div id="cart-footer" class="border-t p-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-primary">R$ 0,00</span>
+                </div>
+                <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-secondary transition duration-300">
+                    Finalizar Compra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Detalhes do Produto</h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="modal-content">
+                    <!-- Product details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script src="./js/mainIndex.js"></script>
+    <script src="./js/mainIndex2.js"></script>
+</body>
+</html>
